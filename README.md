@@ -1,2 +1,1 @@
-# learning-traefik
 Learning Traefik
