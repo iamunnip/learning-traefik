@@ -1,0 +1,30 @@
+services:
+
+  traefik:
+    container_name: traefik
+    image: traefik:v3.2.0
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik"
+      - "traefik.http.routers.traefik.entrypoints=websecure"
+      - "traefik.http.routers.traefik.tls=true"
+      - "traefik.http.routers.traefik.rule=Host(`traefik-dashboard.docker.lab`) || Host(`traefik-dashboard.kube.lab`)"
+      - "traefik.http.routers.traefik.service=api@internal"
+      - "traefik.http.middlewares.auth.basicauth.users=admin:$$2y$$05$$G.fmSdwFBAJ1R0PoU.3rNuKnb8HONVBdkDDW.DCDliHshDA0IzDSm"
+      - "traefik.http.routers.traefik.middlewares=auth"
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./traefik.yml:/etc/traefik/traefik.yml:ro
+      - ./certs:/etc/certs:ro
+    networks:
+      - traefik
+    restart: unless-stopped
+
+networks:
+  traefik:
+    external: true

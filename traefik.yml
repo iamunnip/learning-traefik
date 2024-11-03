@@ -1,0 +1,51 @@
+global:
+  checkNewVersion: false
+  sendAnonymousUsage: false
+
+api:
+  dashboard: true
+  disableDashboardAd: true
+  insecure: false
+
+log:
+  level: DEBUG
+
+accessLog: {}
+
+providers:
+  docker:
+    endpoint: unix:///var/run/docker.sock
+    exposedByDefault: false
+    watch: true
+  file:
+    filename: /etc/traefik/traefik.yml
+    watch: true
+  
+entryPoints:
+  web:
+    address: :80
+    http:
+      redirections:
+        entryPoint:
+          to: websecure
+          scheme: https
+          permanent: true
+  
+  websecure:
+    address: :443
+    http:
+      tls:
+        domains:
+          - main: docker.lab
+            sans:
+              - "*.docker.lab"
+          - main: kube.lab
+            sans:
+              - "*.kube.lab"
+
+tls:
+  certificates:
+    - certFile: /etc/certs/docker.lab.crt
+      keyFile: /etc/certs/docker.lab.key
+    - certFile: /etc/certs/kube.lab.crt
+      keyFile: /etc/certs/kube.lab.key
